@@ -7,233 +7,189 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
   <style>
     :root {
-      --primary: #00ffcc;
+      --main: #00ffcc;
       --success: #00ff9d;
       --bg: #000;
       --card: rgba(255,255,255,0.08);
-      --text: #fff;
     }
-    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
-    body { 
-      background: var(--bg); color: var(--text); min-height:100vh; 
-      display:flex; justify-content:center; align-items:center; padding:15px;
-      overflow:hidden; position:relative;
-    }
-    #bg-video { position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; }
+    * { margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif; }
+    body { background:var(--bg); color:white; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:15px; overflow:hidden; }
+    #bgvid { position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; }
     
-    .container {
-      width:100%; max-width:460px; background:var(--card); backdrop-filter:blur(15px);
-      border-radius:24px; padding:32px; border:1px solid rgba(255,255,255,0.15);
-      box-shadow:0 20px 40px rgba(0,0,0,0.4); text-align:center;
+    .box {
+      width:100%; max-width:460px; background:var(--card); backdrop-filter:blur(16px);
+      border-radius:24px; padding:35px; text-align:center; border:1px solid rgba(255,255,255,0.15);
+      box-shadow:0 20px 50px rgba(0,0,0,0.5);
     }
-    .logo {
-      width:90px; height:90px; margin:0 auto 20px;
-      background:linear-gradient(45deg,var(--primary),var(--success));
-      border-radius:50%; display:flex; align-items:center; justify-content:center;
-      font-size:42px; color:#000; box-shadow:0 0 40px rgba(0,255,204,0.6);
-      animation:float 4s infinite ease-in-out;
-    }
-    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
+    .logo { width:90px; height:90px; margin:0 auto 20px; background:linear-gradient(45deg,var(--main),var(--success)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:44px; color:#000; animation:float 4s infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)} }
 
-    h1 {
-      font-size:32px; font-weight:900; background:linear-gradient(45deg,var(--primary),var(--success));
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px;
-    }
-    .subtitle { opacity:0.8; font-size:15px; margin-bottom:25px; }
+    h1 { font-size:34px; font-weight:900; background:linear-gradient(45deg,var(--main),var(--success)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:6px; }
+    .sub { opacity:0.85; margin-bottom:25px; font-size:15px; }
 
-    .toggle {
-      display:flex; background:rgba(255,255,255,0.1); border-radius:16px; padding:6px; margin-bottom:25px;
-    }
-    .tog { flex:1; padding:14px; border-radius:12px; cursor:pointer; font-weight:600; transition:0.3s; }
-    .tog.active { background:linear-gradient(45deg,var(--primary),var(--success)); color:#000; }
+    .toggle { display:flex; background:rgba(255,255,255,0.1); border-radius:16px; padding:6px; margin-bottom:25px; }
+    .t { flex:1; padding:15px; border-radius:12px; cursor:pointer; font-weight:600; transition:0.3s; }
+    .t.active { background:linear-gradient(45deg,var(--main),var(--success)); color:#000; }
 
-    .input-group { margin-bottom:20px; }
-    input {
-      width:100%; padding:16px; border-radius:16px; border:2px solid rgba(255,255,255,0.2);
-      background:rgba(255,255,255,0.1); color:white; font-size:17px;
-    }
-    input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 25px rgba(0,255,204,0.4); }
+    input { width:100%; padding:18px; border-radius:16px; border:2px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.1); color:white; font-size:18px; margin-bottom:15px; }
+    input:focus { outline:none; border-color:var(--main); box-shadow:0 0 30px rgba(0,255,204,0.4); }
 
-    button {
-      width:100%; padding:16px; border:none; border-radius:16px; font-size:17px; font-weight:700;
-      cursor:pointer; transition:0.4s; margin:10px 0;
-    }
-    .gen-btn {
-      background:linear-gradient(45deg,var(--primary),var(--success)); color:#000;
-    }
-    .gen-btn:hover { transform:translateY(-4px); box-shadow:0 15px 30px rgba(0,255,204,0.4); }
+    button { width:100%; padding:18px; border:none; border-radius:16px; font-size:18px; font-weight:700; cursor:pointer; transition:0.4s; margin:8px 0; }
+    .gen { background:linear-gradient(45deg,var(--main),var(--success)); color:#000; }
+    .gen:hover { transform:translateY(-5px); box-shadow:0 15px 35px rgba(0,255,204,0.5); }
+    .copy { background:rgba(255,255,255,0.15); color:white; }
+    .copy:hover { background:rgba(255,255,255,0.25); }
 
-    .code-box {
-      background:rgba(255,255,255,0.1); padding:22px; border-radius:16px; margin:20px 0;
-      border:2px solid rgba(255,255,255,0.2); font-size:28px; font-weight:900; letter-spacing:4px;
-      word-break:break-all; display:none; animation:pop 0.6s;
+    .codebox {
+      background:rgba(255,255,255,0.12); padding:25px; border-radius:18px; margin:25px 0;
+      border:2px dashed rgba(0,255,204,0.5); font-size:32px; font-weight:900; letter-spacing:5px;
+      display:none; animation:pop 0.7s;
     }
-    @keyframes pop { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+    @keyframes pop { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
 
-    .copy-btn {
-      background:rgba(255,255,255,0.15); color:white;
+    .success {
+      background:linear-gradient(45deg,rgba(0,255,156,0.25),rgba(0,255,157,0.25));
+      border:2px solid var(--success); padding:28px; border-radius:18px; display:none;
+      animation:glow 2s infinite;
     }
-    .copy-btn:hover { background:rgba(255,255,255,0.25); }
+    @keyframes glow { 0%,100%{box-shadow:0 0 20px rgba(0,255,157,0.6)} 50%{box-shadow:0 0 50px rgba(0,255,157,1)} }
 
-    .success-box {
-      background:linear-gradient(45deg,rgba(0,255,156,0.2),rgba(0,255,157,0.2));
-      border:2px solid var(--success); padding:25px; border-radius:16px; display:none;
-      animation:pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%,100% { box-shadow:0 0 20px rgba(0,255,157,0.5); }
-      50% { box-shadow:0 0 50px rgba(0,255,157,0.9); }
-    }
+    .qrbox img { max-width:280px; border-radius:16px; box-shadow:0 0 40px rgba(0,255,204,0.7); margin:15px 0; }
 
-    .qr-box img { max-width:280px; border-radius:16px; box-shadow:0 0 40px rgba(0,255,204,0.6); }
-
-    .loading { font-size:28px; display:none; animation:spin 1s linear infinite; }
+    .load { font-size:30px; display:none; animation:spin 1s linear infinite; }
     @keyframes spin { to{transform:rotate(360deg)} }
 
     .footer { margin-top:30px; font-size:13px; opacity:0.7; }
   </style>
 </head>
 <body>
-  <video id="bg-video" autoplay loop muted playsinline>
+  <video id="bgvid" autoplay loop muted playsinline>
     <source src="anime-loop.mp4" type="video/mp4">
   </video>
 
-  <div class="container">
+  <div class="box">
     <div class="logo"><i class="fas fa-robot"></i></div>
     <h1>VAMPARINA V1</h1>
-    <p class="subtitle">Kenya's #1 Auto-Active WhatsApp Bot • 2025</p>
+    <p class="sub">Kenya's #1 Auto-Active WhatsApp Bot • 2025</p>
 
     <div class="toggle">
-      <div class="tog active" data-mode="pair">Pair Code</div>
-      <div class="tog" data-mode="qr">QR Code</div>
+      <div class="t active" data-mode="pair">Pair Code</div>
+      <div class="t" data-mode="qr">QR Code</div>
     </div>
 
-    <div class="input-group" id="numInput">
-      <input type="text" id="number" placeholder="+254703110780" />
-    </div>
+    <input type="text" id="num" placeholder="+254703110780" />
 
-    <button class="gen-btn" id="generate">Generate Pair Code</button>
-    <div class="loading" id="load">Loading...</div>
+    <button class="gen" id="genBtn">Generate Pair Code</button>
+    <div class="load" id="loading">Loading...</div>
 
-    <!-- PAIRING CODE DISPLAY + COPY BUTTON -->
-    <div class="code-box" id="codeBox">
-      <div id="codeText">1234-5678</div>
+    <!-- CODE DISPLAY + COPY BUTTON -->
+    <div class="codebox" id="codeBox">
+      <div id="theCode">1234-5678</div>
     </div>
-    <button class="copy-btn" id="copyBtn" style="display:none;">
+    <button class="copy" id="copyBtn" style="display:none;">
       <i class="fas fa-copy"></i> Copy Code
     </button>
 
-    <!-- QR CODE DISPLAY -->
-    <div class="qr-box" id="qrBox" style="display:none;">
+    <!-- QR DISPLAY -->
+    <div class="qrbox" id="qrBox" style="display:none;">
       <img id="qrImg" src="" alt="QR Code">
-      <p style="margin-top:15px;">Scan with WhatsApp → Linked Devices</p>
+      <p>Scan with WhatsApp → Linked Devices</p>
     </div>
 
     <!-- SUCCESS MESSAGE -->
-    <div class="success-box" id="successBox">
+    <div class="success" id="success">
       <h3>BOT ACTIVATED SUCCESSFULLY!</h3>
-      <p>
-        Your VAMPARINA V1 is now <strong>LIVE & ACTIVE</strong> on our main server!<br><br>
-        Auto joined group • Auto followed channel<br>
-        You are now sudo owner<br><br>
-        <strong>© 2025 Arnold Chirchir</strong>
-      </p>
+      <p>Your VAMPARINA V1 is now <strong>LIVE & ACTIVE</strong>!<br><br>
+         Auto joined group • Auto followed channel<br>
+         You are now sudo owner<br><br>
+         © 2025 Arnold Chirchir</p>
     </div>
 
-    <div class="footer">
-      © 2025 Arnold Chirchir • VAMPARINA • Contact: +254703110780
-    </div>
+    <div class="footer">© 2025 Arnold Chirchir • VAMPARINA • +254703110780</div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"></script>
   <script>
-    const modeToggle = document.querySelectorAll('.tog');
-    const numInput = document.getElementById('numInput');
-    const genBtn = document.getElementById('generate');
+    const genBtn = document.getElementById('genBtn');
     const codeBox = document.getElementById('codeBox');
-    const codeText = document.getElementById('codeText');
+    const theCode = document.getElementById('theCode');
     const copyBtn = document.getElementById('copyBtn');
     const qrBox = document.getElementById('qrBox');
-    const successBox = document.getElementById('successBox');
-    const load = document.getElementById('load');
+    const success = document.getElementById('success');
+    const loading = document.getElementById('loading');
+    const numInput = document.getElementById('num');
 
-    let currentMode = 'pair';
+    document.querySelectorAll('.t').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.t').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        const mode = t.dataset.mode;
+        numInput.style.display = mode === 'pair' ? 'block' : 'none';
+        genBtn.style.display = mode === 'pair' ? 'block' : 'none';
+        if (mode === 'qr') generateQR();
+      });
+    });
 
-    modeToggle.forEach(t => t.addEventListener('click', () => {
-      modeToggle.forEach(x => x.classList.remove('active'));
-      t.classList.add('active');
-      currentMode = t.dataset.mode;
-      numInput.style.display = currentMode === 'pair' ? 'block' : 'none';
-      genBtn.style.display = currentMode === 'pair' ? 'block' : 'none';
-      if (currentMode === 'qr') generateQR();
-    }));
+    genBtn.onclick = async () => {
+      const number = numInput.value.trim().replace(/[^0-9]/g, '');
+      if (!number) return alert("Enter your WhatsApp number!");
 
-    async function generatePair() {
-      const num = document.getElementById('number').value.trim();
-      if (!num) return alert('Enter your number!');
-
-      load.style.display = 'block';
+      loading.style.display = 'block';
       codeBox.style.display = 'none';
       copyBtn.style.display = 'none';
-      successBox.style.display = 'none';
+      success.style.display = 'none';
+      qrBox.style.display = 'none';
 
       try {
-        const res = await axios.get(`/pair?number=${num.replace(/[^0-9]/g,'')}`);
+        const res = await axios.get(`/pair?number=${number}`);
         const code = res.data.code;
+
         if (code && code.length === 11) {
-          const formatted = code.match(/.{4}/g).join('-');
-          codeText.textContent = formatted;
+          const formatted = code.match(/.{1,4}/g).join('-');
+          theCode.textContent = formatted;
           codeBox.style.display = 'block';
           copyBtn.style.display = 'block';
 
-          // Auto show success after linking (8 seconds)
+          // Auto success after 8 seconds (user has linked)
           setTimeout(() => {
             codeBox.style.display = 'none';
             copyBtn.style.display = 'none';
-            successBox.style.display = 'block';
+            success.style.display = 'block';
           }, 8000);
+        } else {
+          theCode.textContent = "Failed. Try again.";
+          codeBox.style.display = 'block';
         }
       } catch (err) {
-        codeText.textContent = "Failed. Try again.";
+        theCode.textContent = "Error. Check internet.";
         codeBox.style.display = 'block';
       } finally {
-        load.style.display = 'none';
+        loading.style.display = 'none';
       }
-    }
+    };
 
-    async function generateQR() {
-      load.style.display = 'block';
-      qrBox.style.display = 'none';
-      successBox.style.display = 'none';
-
-      try {
-        const res = await axios.get('/qr');
-        document.getElementById('qrImg').src = res.data.qr;
-        qrBox.style.display = 'block';
-
-        // Auto success after 15 seconds
-        setTimeout(() => {
-          qrBox.style.display = 'none';
-          successBox.style.display = 'block';
-        }, 15000);
-      } catch {
-        codeText.textContent = "QR Failed";
-        codeBox.style.display = 'block';
-      } finally {
-        load.style.display = 'none';
-      }
-    }
-
-    // COPY CODE FUNCTION (WORKS 100%)
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(codeText.textContent);
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(theCode.textContent);
       copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
       setTimeout(() => {
         copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Code';
       }, 2000);
-    });
+    };
 
-    genBtn.addEventListener('click', generatePair);
+    async function generateQR() {
+      loading.style.display = 'block';
+      try {
+        const res = await axios.get('/qr');
+        document.getElementById('qrImg').src = res.data.qr;
+        qrBox.style.display = 'block';
+        setTimeout(() => { qrBox.style.display = 'none'; success.style.display = 'block'; }, 15000);
+      } catch {
+        theCode.textContent = "QR Failed";
+        codeBox.style.display = 'block';
+      } finally {
+        loading.style.display = 'none';
+      }
+    }
   </script>
 </body>
 </html>
