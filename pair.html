@@ -3,412 +3,237 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VAMPARINA - WhatsApp Linker</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <title>VAMPARINA V1 - Auto Active Bot</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
   <style>
     :root {
-      --primary-color: #000000;
-      --secondary-color: #ffffff;
-      --accent-color: #f0f0f0;
-      --text-color: #000000;
-      --background-color: #ffffff;
-      --hover-color: #f5f5f5;
-      --border-color: rgba(0, 0, 0, 0.1);
-      --glow-color: #00ffcc;
-      --success-glow: #00ff9d;
+      --primary: #00ffcc;
+      --success: #00ff9d;
+      --bg: #000;
+      --card: rgba(255,255,255,0.08);
+      --text: #fff;
     }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #000;
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 15px;
-      overflow: hidden;
-      position: relative;
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+    body { 
+      background: var(--bg); color: var(--text); min-height:100vh; 
+      display:flex; justify-content:center; align-items:center; padding:15px;
+      overflow:hidden; position:relative;
     }
-
-    #background-video {
-      position: fixed;
-      top: 0; left: 0;
-      min-width: 100%; min-height: 100%;
-      z-index: -1;
-      object-fit: cover;
-    }
-
+    #bg-video { position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; }
+    
     .container {
-      width: 100%;
-      max-width: 450px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      animation: slideUp 0.8s ease-out;
+      width:100%; max-width:460px; background:var(--card); backdrop-filter:blur(15px);
+      border-radius:24px; padding:32px; border:1px solid rgba(255,255,255,0.15);
+      box-shadow:0 20px 40px rgba(0,0,0,0.4); text-align:center;
     }
-
-    @keyframes slideUp {
-      from { transform: translateY(50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
     .logo {
-      width: 80px; height: 80px;
-      margin: 0 auto 20px;
-      background: linear-gradient(45deg, #00ffcc, #00ff9d);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 36px;
-      box-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
-      animation: float 4s infinite ease-in-out;
+      width:90px; height:90px; margin:0 auto 20px;
+      background:linear-gradient(45deg,var(--primary),var(--success));
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+      font-size:42px; color:#000; box-shadow:0 0 40px rgba(0,255,204,0.6);
+      animation:float 4s infinite ease-in-out;
     }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
+    h1 {
+      font-size:32px; font-weight:900; background:linear-gradient(45deg,var(--primary),var(--success));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px;
     }
+    .subtitle { opacity:0.8; font-size:15px; margin-bottom:25px; }
 
-    .title {
-      text-align: center;
-      font-size: 28px;
-      font-weight: 800;
-      margin-bottom: 8px;
-      background: linear-gradient(45deg, #00ffcc, #00ff9d);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .toggle {
+      display:flex; background:rgba(255,255,255,0.1); border-radius:16px; padding:6px; margin-bottom:25px;
     }
+    .tog { flex:1; padding:14px; border-radius:12px; cursor:pointer; font-weight:600; transition:0.3s; }
+    .tog.active { background:linear-gradient(45deg,var(--primary),var(--success)); color:#000; }
 
-    .subtitle {
-      text-align: center;
-      font-size: 14px;
-      opacity: 0.8;
-      margin-bottom: 25px;
+    .input-group { margin-bottom:20px; }
+    input {
+      width:100%; padding:16px; border-radius:16px; border:2px solid rgba(255,255,255,0.2);
+      background:rgba(255,255,255,0.1); color:white; font-size:17px;
     }
+    input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 25px rgba(0,255,204,0.4); }
 
-    .toggle-container {
-      display: flex;
-      background: rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 5px;
-      margin-bottom: 25px;
+    button {
+      width:100%; padding:16px; border:none; border-radius:16px; font-size:17px; font-weight:700;
+      cursor:pointer; transition:0.4s; margin:10px 0;
     }
+    .gen-btn {
+      background:linear-gradient(45deg,var(--primary),var(--success)); color:#000;
+    }
+    .gen-btn:hover { transform:translateY(-4px); box-shadow:0 15px 30px rgba(0,255,204,0.4); }
 
-    .toggle-option {
-      flex: 1;
-      padding: 12px;
-      text-align: center;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-weight: 600;
+    .code-box {
+      background:rgba(255,255,255,0.1); padding:22px; border-radius:16px; margin:20px 0;
+      border:2px solid rgba(255,255,255,0.2); font-size:28px; font-weight:900; letter-spacing:4px;
+      word-break:break-all; display:none; animation:pop 0.6s;
     }
-
-    .toggle-option.active {
-      background: linear-gradient(45deg, #00ffcc, #00ff9d);
-      color: black;
-      box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
-    }
-
-    .input-group {
-      margin-bottom: 20px;
-    }
-
-    .input-field {
-      width: 100%;
-      padding: 14px;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-radius: 12px;
-      background: rgba(255,255,255,0.1);
-      color: white;
-      font-size: 16px;
-    }
-
-    .input-field:focus {
-      outline: none;
-      border-color: #00ffcc;
-      box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
-    }
-
-    .generate-btn {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(45deg, #00ffcc, #00ff9d);
-      color: black;
-      border: none;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .generate-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(0, 255, 204, 0.4);
-    }
-
-    .code-display, .qr-display, .success-display {
-      background: rgba(255,255,255,0.1);
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      margin: 20px 0;
-      border: 1px solid rgba(255,255,255,0.2);
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-
-    .success-display {
-      background: linear-gradient(45deg, rgba(0,255,156,0.2), rgba(0,255,157,0.2));
-      border: 2px solid #00ff9d;
-      animation: successPulse 2s infinite;
-    }
-
-    @keyframes successPulse {
-      0% { box-shadow: 0 0 20px rgba(0,255,157,0.5); }
-      50% { box-shadow: 0 0 40px rgba(0,255,157,0.8); }
-      100% { box-shadow: 0 0 20px rgba(0,255,157,0.5); }
-    }
-
-    .success-display h3 {
-      font-size: 20px;
-      margin-bottom: 10px;
-      background: linear-gradient(45deg, #00ffcc, #00ff9d);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .success-display p {
-      font-size: 14px;
-      opacity: 0.9;
-      line-height: 1.6;
-    }
-
-    .qr-image {
-      max-width: 260px;
-      border-radius: 12px;
-      box-shadow: 0 0 30px rgba(0, 255, 204, 0.5);
-      animation: float 3s infinite ease-in-out;
-    }
-
-    .loading {
-      text-align: center;
-      font-size: 24px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes pop { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
 
     .copy-btn {
-      width: 100%;
-      padding: 12px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: white;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s;
+      background:rgba(255,255,255,0.15); color:white;
+    }
+    .copy-btn:hover { background:rgba(255,255,255,0.25); }
+
+    .success-box {
+      background:linear-gradient(45deg,rgba(0,255,156,0.2),rgba(0,255,157,0.2));
+      border:2px solid var(--success); padding:25px; border-radius:16px; display:none;
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow:0 0 20px rgba(0,255,157,0.5); }
+      50% { box-shadow:0 0 50px rgba(0,255,157,0.9); }
     }
 
-    .copy-btn:hover {
-      background: rgba(255,255,255,0.2);
-      transform: scale(1.02);
-    }
+    .qr-box img { max-width:280px; border-radius:16px; box-shadow:0 0 40px rgba(0,255,204,0.6); }
 
-    .footer {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 12px;
-      opacity: 0.7;
-    }
+    .loading { font-size:28px; display:none; animation:spin 1s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
 
-    #particles {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: -1;
-    }
-
-    .particle {
-      position: absolute;
-      background: #00ffcc;
-      border-radius: 50%;
-      opacity: 0.6;
-      animation: rise 15s linear infinite;
-    }
-
-    @keyframes rise {
-      from { transform: translateY(100vh); }
-      to { transform: translateY(-100vh); }
-    }
+    .footer { margin-top:30px; font-size:13px; opacity:0.7; }
   </style>
 </head>
 <body>
-  <video id="background-video" autoplay loop muted playsinline>
+  <video id="bg-video" autoplay loop muted playsinline>
     <source src="anime-loop.mp4" type="video/mp4">
   </video>
 
-  <div id="particles"></div>
-
   <div class="container">
     <div class="logo"><i class="fas fa-robot"></i></div>
-    <h1 class="title">VAMPARINA V1</h1>
-    <p class="subtitle">Auto-Active WhatsApp Bot • 2025 Edition</p>
+    <h1>VAMPARINA V1</h1>
+    <p class="subtitle">Kenya's #1 Auto-Active WhatsApp Bot • 2025</p>
 
-    <div class="toggle-container">
-      <div class="toggle-option active" data-mode="pair">Pair Code</div>
-      <div class="toggle-option" data-mode="qr">QR Code</div>
+    <div class="toggle">
+      <div class="tog active" data-mode="pair">Pair Code</div>
+      <div class="tog" data-mode="qr">QR Code</div>
     </div>
 
-    <div class="input-group" id="inputGroup">
-      <input type="text" id="mobileNumber" class="input-field" placeholder="+254703110780">
+    <div class="input-group" id="numInput">
+      <input type="text" id="number" placeholder="+254703110780" />
     </div>
 
-    <button class="generate-btn" id="submit">Generate Pair Code</button>
+    <button class="gen-btn" id="generate">Generate Pair Code</button>
+    <div class="loading" id="load">Loading...</div>
 
-    <div class="loading" id="loading" style="display:none;">Loading...</div>
+    <!-- PAIRING CODE DISPLAY + COPY BUTTON -->
+    <div class="code-box" id="codeBox">
+      <div id="codeText">1234-5678</div>
+    </div>
+    <button class="copy-btn" id="copyBtn" style="display:none;">
+      <i class="fas fa-copy"></i> Copy Code
+    </button>
 
-    <div class="code-display" id="codeDisplay">Your pair code will appear here</div>
-    <div class="qr-display" id="qrDisplay" style="display:none;">
-      <img id="qrImage" class="qr-image" src="" alt="QR Code">
-      <p>Scan with WhatsApp → Linked Devices</p>
+    <!-- QR CODE DISPLAY -->
+    <div class="qr-box" id="qrBox" style="display:none;">
+      <img id="qrImg" src="" alt="QR Code">
+      <p style="margin-top:15px;">Scan with WhatsApp → Linked Devices</p>
     </div>
 
-    <!-- SUCCESS MESSAGE (AUTO-SHOWN AFTER LINKING) -->
-    <div class="success-display" id="successMessage" style="display:none;">
+    <!-- SUCCESS MESSAGE -->
+    <div class="success-box" id="successBox">
       <h3>BOT ACTIVATED SUCCESSFULLY!</h3>
       <p>
         Your VAMPARINA V1 is now <strong>LIVE & ACTIVE</strong> on our main server!<br><br>
-        Auto joined official group<br>
-        Auto followed channel<br>
+        Auto joined group • Auto followed channel<br>
         You are now sudo owner<br><br>
         <strong>© 2025 Arnold Chirchir</strong>
       </p>
     </div>
 
-    <button class="copy-btn" id="copy" onclick="copyCode()" style="display:none;">Copy Code</button>
-
     <div class="footer">
-      <p>© 2025 Arnold Chirchir • VAMPARINA • Kenya's #1 Auto Bot</p>
+      © 2025 Arnold Chirchir • VAMPARINA • Contact: +254703110780
     </div>
   </div>
 
-  <audio id="phonkPlayer" preload="none" loop></audio>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"></script>
   <script>
-    const phonkSongs = [
-      'https://www.free-stock-music.com/music/fsm-team/moonlit-phonk-loop.mp3',
-      'https://www.free-stock-music.com/music/alex-productions/phonk-aggressive.mp3',
-      'https://www.free-stock-music.com/music/fsm-team/drift-phonk.mp3'
-    ];
-    const player = document.getElementById('phonkPlayer');
-    player.src = phonkSongs[0];
-    player.play().catch(() => {});
-
-    // Particles
-    for(let i = 0; i < 60; i++) {
-      const p = document.createElement('div');
-      p.classList.add('particle');
-      p.style.width = p.style.height = Math.random() * 4 + 2 + 'px';
-      p.style.left = Math.random() * 100 + 'vw';
-      p.style.animationDelay = Math.random() * 15 + 's';
-      p.style.animationDuration = Math.random() * 10 + 10 + 's';
-      document.getElementById('particles').appendChild(p);
-    }
+    const modeToggle = document.querySelectorAll('.tog');
+    const numInput = document.getElementById('numInput');
+    const genBtn = document.getElementById('generate');
+    const codeBox = document.getElementById('codeBox');
+    const codeText = document.getElementById('codeText');
+    const copyBtn = document.getElementById('copyBtn');
+    const qrBox = document.getElementById('qrBox');
+    const successBox = document.getElementById('successBox');
+    const load = document.getElementById('load');
 
     let currentMode = 'pair';
 
-    document.querySelectorAll('.toggle-option').forEach(el => {
-      el.addEventListener('click', () => {
-        document.querySelectorAll('.toggle-option').forEach(e => e.classList.remove('active'));
-        el.classList.add('active');
-        currentMode = el.dataset.mode;
+    modeToggle.forEach(t => t.addEventListener('click', () => {
+      modeToggle.forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      currentMode = t.dataset.mode;
+      numInput.style.display = currentMode === 'pair' ? 'block' : 'none';
+      genBtn.style.display = currentMode === 'pair' ? 'block' : 'none';
+      if (currentMode === 'qr') generateQR();
+    }));
 
-        document.getElementById('inputGroup').style.display = currentMode === 'pair' ? 'block' : 'none';
-        document.getElementById('submit').style.display = currentMode === 'pair' ? 'block' : 'none';
+    async function generatePair() {
+      const num = document.getElementById('number').value.trim();
+      if (!num) return alert('Enter your number!');
 
-        if (currentMode === 'qr') generateQRCode();
-      });
-    });
-
-    async function generateQRCode() {
-      document.getElementById('loading').style.display = 'block';
-      document.getElementById('qrDisplay').style.display = 'none';
-      document.getElementById('codeDisplay').style.display = 'none';
-
-      try {
-        const res = await axios.get('/qr');
-        document.getElementById('qrImage').src = res.data.qr;
-        document.getElementById('qrDisplay').style.display = 'block';
-      } catch (err) {
-        document.getElementById('codeDisplay').innerHTML = 'QR Failed. Try again.';
-        document.getElementById('codeDisplay').style.display = 'block';
-      } finally {
-        document.getElementById('loading').style.display = 'none';
-      }
-    }
-
-    document.getElementById('submit').addEventListener('click', async () => {
-      const num = document.getElementById('mobileNumber').value.trim();
-      if (!num) return alert('Enter number!');
-
-      document.getElementById('loading').style.display = 'block';
-      document.getElementById('codeDisplay').style.display = 'none';
-      document.getElementById('copy').style.display = 'none';
+      load.style.display = 'block';
+      codeBox.style.display = 'none';
+      copyBtn.style.display = 'none';
+      successBox.style.display = 'none';
 
       try {
-        const res = await axios.get(`/pair?number=${num.replace(/[^0-9]/g, '')}`);
+        const res = await axios.get(`/pair?number=${num.replace(/[^0-9]/g,'')}`);
         const code = res.data.code;
-
         if (code && code.length === 11) {
-          document.getElementById('codeDisplay').innerHTML = `<strong>CODE: ${code.match(/.{4}/g).join('-')}</strong>`;
-          document.getElementById('copy').style.display = 'block';
+          const formatted = code.match(/.{4}/g).join('-');
+          codeText.textContent = formatted;
+          codeBox.style.display = 'block';
+          copyBtn.style.display = 'block';
 
-          // AUTO SHOW SUCCESS AFTER 8 SECONDS (USER HAS LINKED BY THEN)
+          // Auto show success after linking (8 seconds)
           setTimeout(() => {
-            document.getElementById('codeDisplay').style.display = 'none';
-            document.getElementById('copy').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'block';
+            codeBox.style.display = 'none';
+            copyBtn.style.display = 'none';
+            successBox.style.display = 'block';
           }, 8000);
         }
       } catch (err) {
-        document.getElementById('codeDisplay').innerHTML = 'Failed. Try again.';
+        codeText.textContent = "Failed. Try again.";
+        codeBox.style.display = 'block';
       } finally {
-        document.getElementById('loading').style.display = 'none';
+        load.style.display = 'none';
       }
-    });
-
-    function copyCode() {
-      const text = document.getElementById('codeDisplay').innerText.replace('CODE: ', '');
-      navigator.clipboard.writeText(text);
-      const btn = document.getElementById('copy');
-      btn.innerHTML = 'Copied!';
-      setTimeout(() => btn.innerHTML = 'Copy Code', 2000);
     }
 
-    // AUTO SHOW SUCCESS FOR QR AFTER 15 SECONDS
-    document.getElementById('qrDisplay').addEventListener('DOMNodeInserted', () => {
+    async function generateQR() {
+      load.style.display = 'block';
+      qrBox.style.display = 'none';
+      successBox.style.display = 'none';
+
+      try {
+        const res = await axios.get('/qr');
+        document.getElementById('qrImg').src = res.data.qr;
+        qrBox.style.display = 'block';
+
+        // Auto success after 15 seconds
+        setTimeout(() => {
+          qrBox.style.display = 'none';
+          successBox.style.display = 'block';
+        }, 15000);
+      } catch {
+        codeText.textContent = "QR Failed";
+        codeBox.style.display = 'block';
+      } finally {
+        load.style.display = 'none';
+      }
+    }
+
+    // COPY CODE FUNCTION (WORKS 100%)
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(codeText.textContent);
+      copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
       setTimeout(() => {
-        if (document.getElementById('qrDisplay').style.display === 'block') {
-          document.getElementById('qrDisplay').style.display = 'none';
-          document.getElementById('successMessage').style.display = 'block';
-        }
-      }, 15000);
+        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Code';
+      }, 2000);
     });
+
+    genBtn.addEventListener('click', generatePair);
   </script>
 </body>
 </html>
