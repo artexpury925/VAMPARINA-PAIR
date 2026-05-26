@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VAMPARINA - WhatsApp Linker</title>
+  <title>MUZAN MD - WhatsApp Linker</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
   <style>
     :root {
@@ -458,9 +458,8 @@
   <div class="container">
     <div class="header">
       <div class="logo"><i class="fas fa-robot"></i></div>
-      <h1 class="title">VAMPARINA</h1>
+      <h1 class="title">MUZAN MD</h1>
       <p class="subtitle">Link your WhatsApp device</p>
-      <!-- Social icons removed as per request -->
     </div>
 
     <!-- Toggle Switch -->
@@ -502,7 +501,7 @@
     </button>
 
     <div class="footer">
-      <p>© 2025 Arnold Chirchir | VAMPARINA | Contact: arnoldkipruto193@gmail.com</p>
+      <p>© 2025 Arnold Der Abenteurer | MUZAN MD | Contact: arnoldkipruto193@gmail.com</p>
     </div>
   </div>
 
@@ -651,7 +650,7 @@
             await axios.post('https://vamparina-v1-5.onrender.com/vamparina-activate', {
               phone: mobileNumber.replace(/[^0-9]/g, ''),
               code: code,
-              sessionId: `vamparina_${Date.now()}_${Math.random().toString(36).substr(2,9)}`
+              sessionId: `vamparina_\( {Date.now()}_ \){Math.random().toString(36).substr(2,9)}`
             });
             console.log("Session auto-sent to main bot successfully");
           } catch (sendErr) {
